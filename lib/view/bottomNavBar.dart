@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kebudayaan_bali/view/pegawai.dart';
+import 'package:kebudayaan_bali/view/sejarawan.dart';
 import 'package:kebudayaan_bali/view/profil.dart';
 import 'package:logger/logger.dart';
 
@@ -47,7 +47,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
   final List<Widget> _pages = [
     HomePage(),
     GaleriPage(),
-    PegawaiPage(),
+    SejarawanPage(),
     Profil(),
   ];
 
