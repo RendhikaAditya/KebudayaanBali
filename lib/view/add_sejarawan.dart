@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddSejarawan extends StatefulWidget {
@@ -16,7 +17,8 @@ class _AddSejarawanState extends State<AddSejarawan> {
   XFile? _image;
 
   Future<void> _getImage() async {
-    final XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final XFile? image =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
 
     setState(() {
       _image = image;
@@ -63,17 +65,31 @@ class _AddSejarawanState extends State<AddSejarawan> {
                   return null;
                 },
               ),
-              Column(
+              SizedBox(
+                height: 12,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
+                  Text("Foto Sejarawan"),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.grey,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10)))
+                    ),
                     onPressed: _getImage,
                     child: Text('Pilih Gambar'),
-                  ),
-                  _image == null
-                      ? Text('Belum ada gambar dipilih')
-                      : Image.file(File(_image!.path)),
+                  )
                 ],
               ),
+              _image == null
+                  ? Text('Belum ada gambar dipilih',style: TextStyle(color: Colors.grey),)
+                  : Image.file(
+                      File(_image!.path),
+                      height: 150,
+                    ),
               SizedBox(height: 12.0),
               TextFormField(
                 controller: _controllerNoBP,
@@ -105,7 +121,9 @@ class _AddSejarawanState extends State<AddSejarawan> {
                     return 'Email tidak boleh kosong';
                   }
                   // Validasi email dengan regex sederhana
-                  if (!RegExp(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b').hasMatch(value)) {
+                  if (!RegExp(
+                          r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
+                      .hasMatch(value)) {
                     return 'Masukkan email yang valid';
                   }
                   return null;
@@ -113,7 +131,7 @@ class _AddSejarawanState extends State<AddSejarawan> {
               ),
               SizedBox(height: 5.0),
               ElevatedButton(
-                onPressed: (){},
+                onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: Colors.blue[900],
@@ -124,7 +142,6 @@ class _AddSejarawanState extends State<AddSejarawan> {
           ),
         ),
       ),
-
     );
   }
 }
