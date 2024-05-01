@@ -1,9 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import '../model/model_base.dart';
+import '../utils/api_url.dart';
+import 'bottomNavBar.dart';
 
 class AddSejarawan extends StatefulWidget {
   const AddSejarawan({super.key});
@@ -15,7 +20,25 @@ class AddSejarawan extends StatefulWidget {
 class _AddSejarawanState extends State<AddSejarawan> {
   final _formKey = GlobalKey<FormState>();
   XFile? _image;
+  DateTime _selectedDate = DateTime.now();
+  String? _selectedGender;
+  TextEditingController _controllerNama = TextEditingController();
+  TextEditingController _controllerAsal = TextEditingController();
+  TextEditingController _controllerDeskripsi = TextEditingController();
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
   Future<void> _getImage() async {
     final XFile? image =
         await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -25,10 +48,40 @@ class _AddSejarawanState extends State<AddSejarawan> {
     });
   }
 
-  TextEditingController _controllerNama = TextEditingController();
-  TextEditingController _controllerNoBP = TextEditingController();
-  TextEditingController _controllerNoHP = TextEditingController();
-  TextEditingController _controllerEmail = TextEditingController();
+  Future<void> _tambahDataPegawai() async {
+    if (_formKey.currentState!.validate()) {
+      final String apiUrl = '${ApiUrl().baseUrl}pegawai.php'; // Ganti dengan URL backend Anda
+
+      final response = await http.post(Uri.parse(apiUrl), body: {
+        'action': "tambah",
+        'nama_sejarawan': _controllerNama.text,
+        'foto_sejarawan': _image != null ? _image!.path : '',
+        'tanggal_lahir': _selectedDate.toString().substring(0,10),
+        'asal': _controllerAsal.text,
+        'jenis_kelamin': _selectedGender.toString(),
+        'deskripsi': _controllerDeskripsi.text,
+      });
+
+      if (response.statusCode == 200) {
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Data pegawai berhasil ditambahkan')),
+        );
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => BottomNavigation("sejarawan")),
+                (route) => false
+        );
+
+      } else {
+        // Jika permintaan gagal, tampilkan pesan error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menambahkan data pegawai')),
+        );
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -91,45 +144,67 @@ class _AddSejarawanState extends State<AddSejarawan> {
                       height: 150,
                     ),
               SizedBox(height: 12.0),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Tanggal Lahir Sejarawan"),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.grey,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10)))
+                    ),
+                    onPressed: ()=>_selectDate(context),
+                    child: Text('Select Date'),
+                  )
+                ],
+              ),
+              _selectedDate == null
+              ? Text("mm-dd-yyyy")
+              : Text(_selectedDate.toString().substring(0,10)),
               TextFormField(
-                controller: _controllerNoBP,
-                decoration: InputDecoration(labelText: 'Nomor BP'),
+                controller: _controllerAsal,
+                decoration: InputDecoration(labelText: 'Asal'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Nomor BP tidak boleh kosong';
+                    return 'Asal tidak boleh kosong';
                   }
                   return null;
                 },
               ),
               SizedBox(height: 12.0),
+              Text(
+                'Pilih Jenis Kelamin:',
+              ),
+                DropdownButton<String>(
+                value: _selectedGender,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedGender = newValue;
+                  });
+                },
+                items: <String>['Laki-laki', 'Perempuan']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+              SizedBox(height: 12),
+
               TextFormField(
-                controller: _controllerNoHP,
-                decoration: InputDecoration(labelText: 'Nomor HP'),
+                controller: _controllerDeskripsi,
+                decoration: InputDecoration(labelText: 'Deskripsi'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Nomor HP tidak boleh kosong';
+                    return 'Deskripsi tidak boleh kosong';
                   }
                   return null;
                 },
               ),
-              SizedBox(height: 12.0),
-              TextFormField(
-                controller: _controllerEmail,
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Email tidak boleh kosong';
-                  }
-                  // Validasi email dengan regex sederhana
-                  if (!RegExp(
-                          r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
-                      .hasMatch(value)) {
-                    return 'Masukkan email yang valid';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 5.0),
+              SizedBox(height: 15.0),
               ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(

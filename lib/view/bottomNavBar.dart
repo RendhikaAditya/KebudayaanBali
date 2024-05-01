@@ -28,7 +28,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
     logger.d("Data dari push :: $initialRoute");
 
     // Pengecekan nilai initialRoute
-    if (initialRoute == "pegawai") {
+    if (initialRoute == "sejarawan") {
       setState(() {
         _selectedIndex = 2;
       });
