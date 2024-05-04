@@ -1,27 +1,47 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 import '../model/model_base.dart';
+import '../model/model_sejarawan.dart';
 import '../utils/api_url.dart';
 import 'bottomNavBar.dart';
 
 class AddSejarawan extends StatefulWidget {
-  const AddSejarawan({super.key});
+  final Datum? data;
+
+  const AddSejarawan(this.data, {Key? key}) : super(key: key);
 
   @override
   State<AddSejarawan> createState() => _AddSejarawanState();
 }
 
 class _AddSejarawanState extends State<AddSejarawan> {
+  var logger = Logger();
   final _formKey = GlobalKey<FormState>();
   XFile? _image;
-  DateTime _selectedDate = DateTime.now();
+  final ImagePicker _picker = ImagePicker();
+  File? uploadimage;
+  DateTime? _selectedDate= DateTime.now();
   String? _selectedGender;
+
+  @override
+  void initState() {
+    super.initState();
+    // Jika data tidak null, isi _selectedDate dengan data.tanggalLahir
+    // dan _selectedGender dengan data.jeniskelamin
+    if (widget.data != null) {
+      _selectedDate = widget.data!.tanggalLahir;
+      _selectedGender = widget.data!.jenisKelamin;
+    }
+  }
+
   TextEditingController _controllerNama = TextEditingController();
   TextEditingController _controllerAsal = TextEditingController();
   TextEditingController _controllerDeskripsi = TextEditingController();
@@ -30,8 +50,8 @@ class _AddSejarawanState extends State<AddSejarawan> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -39,45 +59,139 @@ class _AddSejarawanState extends State<AddSejarawan> {
       });
     }
   }
-  Future<void> _getImage() async {
-    final XFile? image =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
 
+  Future<void> _getImage() async {
+    var choosedimage = await _picker.pickImage(source: ImageSource.gallery);
     setState(() {
-      _image = image;
+      uploadimage = File(choosedimage!.path);
     });
   }
 
-  Future<void> _tambahDataPegawai() async {
+  Future<void> _tambahDataSejarawan() async {
     if (_formKey.currentState!.validate()) {
-      final String apiUrl = '${ApiUrl().baseUrl}pegawai.php'; // Ganti dengan URL backend Anda
+      final String apiUrl = '${ApiUrl().baseUrl}sejarawan.php';
 
-      final response = await http.post(Uri.parse(apiUrl), body: {
-        'action': "tambah",
-        'nama_sejarawan': _controllerNama.text,
-        'foto_sejarawan': _image != null ? _image!.path : '',
-        'tanggal_lahir': _selectedDate.toString().substring(0,10),
-        'asal': _controllerAsal.text,
-        'jenis_kelamin': _selectedGender.toString(),
-        'deskripsi': _controllerDeskripsi.text,
-      });
+      // Mengambil path file foto
+      String imagePath = _image != null ? _image!.path : '';
 
-      if (response.statusCode == 200) {
+      // Membuat request multipart
+      var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Data pegawai berhasil ditambahkan')),
-        );
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => BottomNavigation("sejarawan")),
-                (route) => false
-        );
+      List<int> imageBytes = uploadimage!.readAsBytesSync();
+      String baseImage = base64Encode(imageBytes);
+      // Menambahkan data teks
+      request.fields['action'] = 'tambah';
+      request.fields['nama_sejarawan'] = _controllerNama.text;
+      request.fields['foto_sejarawan'] = baseImage;
+      request.fields['tanggal_lahir'] =
+          _selectedDate.toString().substring(0, 10);
+      request.fields['asal'] = _controllerAsal.text;
+      request.fields['jenis_kelamin'] = _selectedGender.toString();
+      request.fields['deskripsi'] = _controllerDeskripsi.text;
 
-      } else {
-        // Jika permintaan gagal, tampilkan pesan error
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menambahkan data pegawai')),
-        );
+      // Menambahkan file foto
+      if (imagePath.isNotEmpty) {
+        request.files.add(
+            await http.MultipartFile.fromPath('foto_sejarawan', imagePath));
+      }
+
+      try {
+        var streamedResponse = await request.send();
+        var response = await http.Response.fromStream(streamedResponse);
+
+        if (response.statusCode == 200) {
+          // Jika berhasil, periksa respons JSON
+          Map<String, dynamic> jsonResponse = json.decode(response.body);
+          if (jsonResponse['sukses']) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Data pegawai berhasil ditambahkan')),
+            );
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => BottomNavigation("sejarawan")),
+                (route) => false);
+          } else {
+            // Tampilkan pesan error dari server
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(jsonResponse['pesan'])),
+            );
+          }
+        } else {
+          // Tanggapan tidak berhasil, tampilkan kode status
+          throw Exception(
+              'Gagal menambahkan data sejarawan: ${response.statusCode}');
+        }
+      } catch (e) {
+        throw Exception('Gagal melakukan request: $e');
+      }
+    }
+  }
+
+  Future<void> _editDataSejarawan() async {
+    if (_formKey.currentState!.validate()) {
+      final String apiUrl = '${ApiUrl().baseUrl}sejarawan.php';
+
+
+      // Mengambil path file foto
+      String imagePath = _image != null ? _image!.path : '';
+
+      // Membuat request multipart
+      var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
+      //
+      String baseImage ="";
+      if(uploadimage!=null) {
+        List<int> imageBytes = uploadimage!.readAsBytesSync();
+        baseImage = base64Encode(imageBytes);
+        logger.d("::::${baseImage} ::::");
+      }
+
+      // Menambahkan data teks
+      request.fields['action'] = 'edit';
+      request.fields['id'] = widget.data!.id!;
+      request.fields['nama_sejarawan'] = _controllerNama.text;
+      request.fields['foto_sejarawan'] = baseImage;
+      request.fields['tanggal_lahir'] =
+          _selectedDate.toString().substring(0, 10);
+      request.fields['asal'] = _controllerAsal.text;
+      request.fields['jenis_kelamin'] = _selectedGender.toString();
+      request.fields['deskripsi'] = _controllerDeskripsi.text;
+
+      // Menambahkan file foto
+      if (imagePath.isNotEmpty) {
+        request.files.add(
+            await http.MultipartFile.fromPath('foto_sejarawan', imagePath));
+      }
+
+      try {
+        var streamedResponse = await request.send();
+        var response = await http.Response.fromStream(streamedResponse);
+
+        if (response.statusCode == 200) {
+          // Jika berhasil, periksa respons JSON
+          Map<String, dynamic> jsonResponse = json.decode(response.body);
+          if (jsonResponse['sukses']) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Data sejarawan berhasil diperbarui')),
+            );
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => BottomNavigation("sejarawan")),
+                    (route) => false);
+          } else {
+            // Tampilkan pesan error dari server
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(jsonResponse['pesan'])),
+            );
+          }
+        } else {
+          // Tanggapan tidak berhasil, tampilkan kode status
+          throw Exception(
+              'Gagal memperbarui data sejarawan: ${response.statusCode}');
+        }
+      } catch (e) {
+        throw Exception('Gagal melakukan request: $e');
       }
     }
   }
@@ -85,10 +199,20 @@ class _AddSejarawanState extends State<AddSejarawan> {
 
   @override
   Widget build(BuildContext context) {
+    _controllerNama = widget.data != null
+        ? TextEditingController(text: widget.data!.namaSejarawan.toString())
+        : TextEditingController();
+    _controllerAsal = widget.data != null
+        ? TextEditingController(text: widget.data!.asal.toString())
+        : TextEditingController();
+    _controllerDeskripsi = widget.data != null
+        ? TextEditingController(text: widget.data!.deskripsi.toString())
+        : TextEditingController();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Tambah Data Sejarawan',
+          widget.data==null?'Tambah Data Sejarawan':'Edit Data Sejarawan',
           style: TextStyle(
             color: Colors.white,
           ), // Ubah warna teks menjadi putih
@@ -128,21 +252,38 @@ class _AddSejarawanState extends State<AddSejarawan> {
                   Text("Foto Sejarawan"),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.grey,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10)))
-                    ),
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.grey,
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10)))),
                     onPressed: _getImage,
                     child: Text('Pilih Gambar'),
                   )
                 ],
               ),
-              _image == null
-                  ? Text('Belum ada gambar dipilih',style: TextStyle(color: Colors.grey),)
-                  : Image.file(
-                      File(_image!.path),
-                      height: 150,
-                    ),
+              widget.data == null
+                  ? uploadimage == null
+                      ? Text(
+                          'Belum ada gambar dipilih',
+                          style: TextStyle(color: Colors.grey),
+                        )
+                      : Image.file(
+                          File(uploadimage!.path),
+                          height: 150,
+                        )
+                  : uploadimage == null
+                      ? Image.network(
+                          '${ApiUrl().baseUrl}${widget.data?.fotoSejarawan}',
+                          width: 200,
+                          height: 200,
+                          fit: BoxFit
+                              .cover, // Optional, untuk memastikan gambar terisi penuh dalam lingkaran
+                        )
+                      : Image.file(
+                          File(uploadimage!.path),
+                          height: 150,
+                        ),
               SizedBox(height: 12.0),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -153,16 +294,15 @@ class _AddSejarawanState extends State<AddSejarawan> {
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.grey,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10)))
-                    ),
-                    onPressed: ()=>_selectDate(context),
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10)))),
+                    onPressed: () => _selectDate(context),
                     child: Text('Select Date'),
                   )
                 ],
               ),
-              _selectedDate == null
-              ? Text("mm-dd-yyyy")
-              : Text(_selectedDate.toString().substring(0,10)),
+              Text(_selectedDate.toString().substring(0,10)),
               TextFormField(
                 controller: _controllerAsal,
                 decoration: InputDecoration(labelText: 'Asal'),
@@ -177,7 +317,7 @@ class _AddSejarawanState extends State<AddSejarawan> {
               Text(
                 'Pilih Jenis Kelamin:',
               ),
-                DropdownButton<String>(
+              DropdownButton<String>(
                 value: _selectedGender,
                 onChanged: (String? newValue) {
                   setState(() {
@@ -193,7 +333,6 @@ class _AddSejarawanState extends State<AddSejarawan> {
                 }).toList(),
               ),
               SizedBox(height: 12),
-
               TextFormField(
                 controller: _controllerDeskripsi,
                 decoration: InputDecoration(labelText: 'Deskripsi'),
@@ -206,12 +345,12 @@ class _AddSejarawanState extends State<AddSejarawan> {
               ),
               SizedBox(height: 15.0),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: widget.data==null?_tambahDataSejarawan:_editDataSejarawan,
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: Colors.blue[900],
                 ),
-                child: Text('Simpan'),
+                child: widget.data == null ? Text('Simpan') : Text('Update'),
               ),
             ],
           ),

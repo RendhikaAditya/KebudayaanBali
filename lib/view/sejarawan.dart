@@ -2,12 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:kebudayaan_bali/view/add_sejarawan.dart';
+import 'package:kebudayaan_bali/view/detail_sejarawan.dart';
 import 'package:logger/logger.dart';
 
 import '../model/model_sejarawan.dart';
 import '../utils/api_url.dart';
 
 class SejarawanPage extends StatefulWidget {
+
   const SejarawanPage({Key? key}) : super(key: key);
 
   @override
@@ -45,10 +47,10 @@ class _SejarawanPageState extends State<SejarawanPage> {
     }
   }
 
-  void filterPegawaiList(String query) {
+  void filterSejarawanList(String query) {
     setState(() {
       filteredSejarawanList = sejarawanList
-          .where((pegawai) => pegawai.namaSejarawan!
+          .where((sejarawan) => sejarawan.namaSejarawan!
               .toLowerCase()
               .contains(query.toLowerCase()))
           .toList();
@@ -73,7 +75,7 @@ class _SejarawanPageState extends State<SejarawanPage> {
           children: [
             TextField(
               controller: searchController,
-              // onChanged: filterPegawaiList,
+              onChanged: filterSejarawanList,
               decoration: InputDecoration(
                 labelText: 'Search Sejarawan',
                 prefixIcon: Icon(Icons.search),
@@ -88,12 +90,12 @@ class _SejarawanPageState extends State<SejarawanPage> {
                     padding: EdgeInsets.all(8),
                     child: GestureDetector(
                       onTap: () {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => PageDetailPegawai(data),
-                        //   ),
-                        // );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailSejarawanPage(data),
+                          ),
+                        );
                       },
                       child: Card(
                         child: Row(
@@ -101,7 +103,7 @@ class _SejarawanPageState extends State<SejarawanPage> {
                             Container(
                               padding: EdgeInsets.all(16),
                               child: Image.network(
-                                '${ApiUrl().baseUrl}/gambar/${data?.fotoSejarawan}',
+                                '${ApiUrl().baseUrl}${data?.fotoSejarawan}',
                                 fit: BoxFit.fill,
                                 height: 50,
                                 width: 50,
@@ -142,7 +144,7 @@ class _SejarawanPageState extends State<SejarawanPage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddSejarawan()),
+            MaterialPageRoute(builder: (context) => AddSejarawan(null)),
           );
         },
         child: Icon(
