@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kebudayaan_bali/view/bottomNavBar.dart';
+import 'package:kebudayaan_bali/view/login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: BottomNavigation("home"),
+      home: LoginPage(),
       debugShowCheckedModeBanner: false, // Ini untuk menonaktifkan tanda bug
 
     );

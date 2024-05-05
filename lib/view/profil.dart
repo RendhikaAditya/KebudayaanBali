@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
 import '../utils/sesion_manager.dart';
+import 'login.dart';
 
 class Profil extends StatefulWidget {
   const Profil({super.key});
@@ -127,11 +128,11 @@ class _Profil extends State<Profil> {
                 height: 45,
                 onPressed: () {
                   sessionManager.clearSession();
-                  // Navigator.pushAndRemoveUntil(
-                  //     context,
-                  //     MaterialPageRoute(builder: (context) => LoginPage()),
-                  //         (route) => false
-                  // );
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                          (route) => false
+                  );
                 },
                 color: Colors.red[900],
                 child: Text('Logout', style: TextStyle(color: Colors.white)),

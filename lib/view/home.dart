@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:kebudayaan_bali/view/detail_kebudayaan.dart';
 import 'package:logger/logger.dart';
 
 import '../model/model_budaya.dart';
@@ -126,7 +127,13 @@ class _HomePageState extends State<HomePage> {
                             padding: EdgeInsets.all(8),
                             child: GestureDetector(
                               onTap: () {
-                                // Handle onTap action
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        PageDetailKebudayaan(dataItem),
+                                  ),
+                                );
                               },
                               child: Card(
                                 child: Column(
