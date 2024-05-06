@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kebudayaan_bali/view/bottomNavBar.dart';
 import 'package:kebudayaan_bali/view/login.dart';
+import 'package:kebudayaan_bali/view/splashscreen.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -15,10 +17,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),
         useMaterial3: true,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Color(0xfffdefc2)
+        )
       ),
-      home: LoginPage(),
+      home: SplashScreen(),
       debugShowCheckedModeBanner: false, // Ini untuk menonaktifkan tanda bug
 
     );

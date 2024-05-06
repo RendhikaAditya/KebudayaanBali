@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kebudayaan_bali/view/edit_profil.dart';
 import 'package:logger/logger.dart';
 
 import '../utils/sesion_manager.dart';
@@ -107,10 +108,10 @@ class _Profil extends State<Profil> {
                 minWidth: 150,
                 height: 45,
                 onPressed: () {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(builder: (context) => EditUser())
-                  // );
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => EditProfil())
+                  );
                 },
                 color: Colors.amber[900],
                 child: Text(
