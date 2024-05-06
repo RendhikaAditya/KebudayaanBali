@@ -3,6 +3,7 @@ import 'package:kebudayaan_bali/view/bottomNavBar.dart';
 import 'package:kebudayaan_bali/view/login.dart';
 import 'package:kebudayaan_bali/view/splashscreen.dart';
 
+
 void main() {
   runApp(const MyApp());
 }
