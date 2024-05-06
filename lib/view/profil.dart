@@ -2,9 +2,11 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kebudayaan_bali/view/edit_profil.dart';
 import 'package:logger/logger.dart';
 
 import '../utils/sesion_manager.dart';
+import 'login.dart';
 
 class Profil extends StatefulWidget {
   const Profil({super.key});
@@ -106,10 +108,10 @@ class _Profil extends State<Profil> {
                 minWidth: 150,
                 height: 45,
                 onPressed: () {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(builder: (context) => EditUser())
-                  // );
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => EditProfil())
+                  );
                 },
                 color: Colors.amber[900],
                 child: Text(
@@ -127,11 +129,11 @@ class _Profil extends State<Profil> {
                 height: 45,
                 onPressed: () {
                   sessionManager.clearSession();
-                  // Navigator.pushAndRemoveUntil(
-                  //     context,
-                  //     MaterialPageRoute(builder: (context) => LoginPage()),
-                  //         (route) => false
-                  // );
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                          (route) => false
+                  );
                 },
                 color: Colors.red[900],
                 child: Text('Logout', style: TextStyle(color: Colors.white)),
