@@ -97,7 +97,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text("Login",style: TextStyle( color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold)),
+                    Text("Register",style: TextStyle( color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold)),
                     SizedBox(height: 16,),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),

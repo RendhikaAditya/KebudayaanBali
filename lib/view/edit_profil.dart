@@ -112,109 +112,110 @@ class _EditProfilState extends State<EditProfil> {
       ),
       body: Form(
         key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text("Daftar",style: TextStyle( color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16,),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: TextFormField(
-                controller: _txtNama,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Nama tidak boleh kosong';
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  labelText: 'Nama Lengkap',
-                  border: OutlineInputBorder(),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 16,),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: TextFormField(
+                  controller: _txtNama,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Nama tidak boleh kosong';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Nama Lengkap',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: TextFormField(
-                controller: _txtAlamat,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Alamat tidak boleh kosong';
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  labelText: 'Alamat',
-                  border: OutlineInputBorder(),
+              SizedBox(height: 20),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: TextFormField(
+                  controller: _txtAlamat,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Alamat tidak boleh kosong';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Alamat',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: TextFormField(
-                controller: _txtNoTelpon,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Nomor Telepon tidak boleh kosong';
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  labelText: 'Nomor Telepon',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.phone,
-              ),
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: TextFormField(
-                controller: _txtUsername,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Username tidak boleh kosong';
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  border: OutlineInputBorder(),
+              SizedBox(height: 20),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: TextFormField(
+                  controller: _txtNoTelpon,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Nomor Telepon tidak boleh kosong';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Nomor Telepon',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.phone,
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: TextField(
-                obscureText: true,
-                controller: _txtPassword,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
+              SizedBox(height: 20),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: TextFormField(
+                  controller: _txtUsername,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Username tidak boleh kosong';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: isLoading
-                  ? const Center(
-                child: CircularProgressIndicator(),
-              )
-                  : MaterialButton(
-                minWidth: 150,
-                height: 45,
-                onPressed: () {
-                  editData(sessionManager!.idUser!);
-                },
-                color: Colors.blue[900],
-                child: Text('Edit', style: TextStyle(color: Colors.white)),
+              SizedBox(height: 20),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: TextField(
+                  obscureText: true,
+                  controller: _txtPassword,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-          ],
+              SizedBox(height: 20),
+              Center(
+                child: isLoading
+                    ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+                    : MaterialButton(
+                  minWidth: 150,
+                  height: 45,
+                  onPressed: () {
+                    editData(sessionManager!.idUser!);
+                  },
+                  color: Colors.blue[900],
+                  child: Text('Edit', style: TextStyle(color: Colors.white)),
+                ),
+              ),
+              SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );

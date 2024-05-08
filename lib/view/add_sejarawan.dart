@@ -229,130 +229,132 @@ class _AddSejarawanState extends State<AddSejarawan> {
         padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _controllerNama,
-                decoration: InputDecoration(labelText: 'Nama Pegawai'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Nama pegawai tidak boleh kosong';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(
-                height: 12,
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text("Foto Sejarawan"),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.grey,
-                        shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10)))),
-                    onPressed: _getImage,
-                    child: Text('Pilih Gambar'),
-                  )
-                ],
-              ),
-              widget.data == null
-                  ? uploadimage == null
-                      ? Text(
-                          'Belum ada gambar dipilih',
-                          style: TextStyle(color: Colors.grey),
-                        )
-                      : Image.file(
-                          File(uploadimage!.path),
-                          height: 150,
-                        )
-                  : uploadimage == null
-                      ? Image.network(
-                          '${ApiUrl().baseUrl}${widget.data?.fotoSejarawan}',
-                          width: 200,
-                          height: 200,
-                          fit: BoxFit
-                              .cover, // Optional, untuk memastikan gambar terisi penuh dalam lingkaran
-                        )
-                      : Image.file(
-                          File(uploadimage!.path),
-                          height: 150,
-                        ),
-              SizedBox(height: 12.0),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text("Tanggal Lahir Sejarawan"),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.grey,
-                        shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10)))),
-                    onPressed: () => _selectDate(context),
-                    child: Text('Select Date'),
-                  )
-                ],
-              ),
-              Text(_selectedDate.toString().substring(0,10)),
-              TextFormField(
-                controller: _controllerAsal,
-                decoration: InputDecoration(labelText: 'Asal'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Asal tidak boleh kosong';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 12.0),
-              Text(
-                'Pilih Jenis Kelamin:',
-              ),
-              DropdownButton<String>(
-                value: _selectedGender,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedGender = newValue;
-                  });
-                },
-                items: <String>['Laki-laki', 'Perempuan']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-              SizedBox(height: 12),
-              TextFormField(
-                controller: _controllerDeskripsi,
-                decoration: InputDecoration(labelText: 'Deskripsi'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Deskripsi tidak boleh kosong';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 15.0),
-              ElevatedButton(
-                onPressed: widget.data==null?_tambahDataSejarawan:_editDataSejarawan,
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.blue[900],
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextFormField(
+                  controller: _controllerNama,
+                  decoration: InputDecoration(labelText: 'Nama Pegawai'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Nama pegawai tidak boleh kosong';
+                    }
+                    return null;
+                  },
                 ),
-                child: widget.data == null ? Text('Simpan') : Text('Update'),
-              ),
-            ],
+                SizedBox(
+                  height: 12,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text("Foto Sejarawan"),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.grey,
+                          shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)))),
+                      onPressed: _getImage,
+                      child: Text('Pilih Gambar'),
+                    )
+                  ],
+                ),
+                widget.data == null
+                    ? uploadimage == null
+                        ? Text(
+                            'Belum ada gambar dipilih',
+                            style: TextStyle(color: Colors.grey),
+                          )
+                        : Image.file(
+                            File(uploadimage!.path),
+                            height: 150,
+                          )
+                    : uploadimage == null
+                        ? Image.network(
+                            '${ApiUrl().baseUrl}${widget.data?.fotoSejarawan}',
+                            width: 200,
+                            height: 200,
+                            fit: BoxFit
+                                .cover, // Optional, untuk memastikan gambar terisi penuh dalam lingkaran
+                          )
+                        : Image.file(
+                            File(uploadimage!.path),
+                            height: 150,
+                          ),
+                SizedBox(height: 12.0),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text("Tanggal Lahir Sejarawan"),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.grey,
+                          shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)))),
+                      onPressed: () => _selectDate(context),
+                      child: Text('Select Date'),
+                    )
+                  ],
+                ),
+                Text(_selectedDate.toString().substring(0,10)),
+                TextFormField(
+                  controller: _controllerAsal,
+                  decoration: InputDecoration(labelText: 'Asal'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Asal tidak boleh kosong';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 12.0),
+                Text(
+                  'Pilih Jenis Kelamin:',
+                ),
+                DropdownButton<String>(
+                  value: _selectedGender,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedGender = newValue;
+                    });
+                  },
+                  items: <String>['Laki-laki', 'Perempuan']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: 12),
+                TextFormField(
+                  controller: _controllerDeskripsi,
+                  decoration: InputDecoration(labelText: 'Deskripsi'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Deskripsi tidak boleh kosong';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 15.0),
+                ElevatedButton(
+                  onPressed: widget.data==null?_tambahDataSejarawan:_editDataSejarawan,
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.blue[900],
+                  ),
+                  child: widget.data == null ? Text('Simpan') : Text('Update'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
